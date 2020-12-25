@@ -3,13 +3,8 @@ import torch.nn as nn
 import torch.optim as optim
 import spacy
 from torchtext.data import Field, TabularDataset, BucketIterator
-
-######### Loading from JSON/CSV/TSV files #########
-
-# STEPS:
-# 1. Specify how preprocessing should be done -> Fields
-# 2. Use Dataset to load the data -> TabularDataset (JSON/CSV/TSV Files)
-# 3. Construct an iterator to do batching & padding -> BucketIterator
+import numpy as np
+from sklearn.metrics import recall_score
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -27,13 +22,13 @@ score = Field(sequential=False, use_vocab=False)
 fields = {"Quote": ("q", quote), "Score": ("s", score)}
 
 train_data, test_data = TabularDataset.splits(
-    path="mydata", train="/content/sample_data/train.json", test="/content/sample_data/test.json", format="json", fields=fields
+    path="mydata", train="/tmp/pycharm_project_62/split30_word_data/train/train.json", test="/tmp/pycharm_project_62/split30_word_data/test/test.json", format="json", fields=fields
 )
 
-quote.build_vocab(train_data, max_size=10000, min_freq=1, vectors="glove.6B.100d")
+quote.build_vocab(train_data, max_size=10000, min_freq=10, vectors="glove.6B.100d")
 
 train_iterator, test_iterator = BucketIterator.splits(
-    (train_data, test_data), batch_size=128, device=device
+    (train_data, test_data), batch_size=1, device=device,sort=False
 )
 
 ######### Training a simple LSTM on this toy data of ours #########
@@ -60,11 +55,11 @@ class RNN_LSTM(nn.Module):
 
 # Hyperparameters
 input_size = len(quote.vocab)
-hidden_size = 512
-num_layers = 2
+hidden_size = 100
+num_layers = 1
 embedding_size = 100
-learning_rate = 0.005
-num_epochs = 10
+learning_rate = 0.001
+num_epochs = 20
 
 # Initialize network
 model = RNN_LSTM(input_size, embedding_size, hidden_size, num_layers).to(device)
@@ -80,6 +75,7 @@ optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 # Train Network
 for epoch in range(num_epochs):
     losses=[]
+    # model.train()
     for batch_idx, batch in enumerate(train_iterator):
         # Get data to cuda if possible
         data = batch.q.to(device=device)
@@ -94,6 +90,26 @@ for epoch in range(num_epochs):
         # gradient descent
         optimizer.step()
     mean_loss = sum(losses)/len(losses)
-    print(data)
-    print(model(data))
     print(mean_loss)
+    predictions = []
+    target = []
+    # model.eval()
+    for batch_idx, batch in enumerate(test_iterator):
+        data = batch.q.to(device=device)
+        targets = batch.s.to(device=device)
+        predictions=predictions+[t.detach().numpy() for t in model(data).cpu()]
+        # predictions.append(model(data).item())
+        target = target + [t.detach().numpy() for t in targets.cpu()]
+        # target.append(targets.item())
+
+    for i in range(len(predictions)):
+        if predictions[i] < 0.5:
+            predictions[i] = 0
+        else:
+            predictions[i] = 1
+    predictions = np.array(predictions)
+    target = np.array(target)
+    my_accuracy = 1 - np.mean(np.abs(predictions - target))
+    print(my_accuracy)
+    print(recall_score(target, predictions, average='binary'))
+
