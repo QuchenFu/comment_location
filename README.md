@@ -28,4 +28,4 @@ Or step by step(wait for the `glove.6B.100d` to be downloaded in line 4):
 `python3 show_batch.py --batch_size=8 --file_path="split30_word_data/train/data.txt"`
 
 Note:
-The show_batch.py file is only for demonstration. It uses the train data also as the test(wrong) since only one parameter of the location of data.txt is allowed. I printed out the tensor type, value of the source, and value of the target. The tokenizer is from OpenNMS and may not be the best case, also the embedding is glove.6B.100d which may not be suitable.
+The show_batch.py file is only for demonstration. It uses the train data also as the test(wrong) since only one parameter of the location of data.txt is allowed. I printed out the tensor type, value of the source, and value of the target. The tokenizer is from OpenNMT and may not be the best case, also the embedding is glove.6B.100d which may not be suitable.
