@@ -2,11 +2,17 @@
 
 This git repo built a pytorch data loader for the comment location prediction dataset. The train.py also contains a vanilla LSTM model that can achieve 0.76 accuracy and 0.26 recall which is better than the original paper.
 
-The data path is specified in `show_batch.sh`
-
 How to run(after download repo):
 
-`sh show_batch.sh`
+`git clone https://github.com/QuchenFu/comment_location.git`
+
+`cd comment_location`
+
+`sh show_batch.sh 1 split30_word_data/train/data.txt`
+
+`sh show_batch.sh 8 split30_word_data/train/data.txt`
+
+The first parameter is batch size, the second parameter is the data file path
 
 
 Or step by step(wait for the `glove.6B.100d` to be downloaded in line 4):
