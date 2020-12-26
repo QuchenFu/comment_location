@@ -1,10 +1,12 @@
 # comment_location
 
-This git repo built a dataloader for comment location prediction dataset. The train.py also contains a vanila LSTM model that can achieve 0.76 accuracy and 0.26 recall which is better then the original paper.
+This git repo built a pytorch data loader for the comment location prediction dataset. The train.py also contains a vanilla LSTM model that can achieve 0.76 accuracy and 0.26 recall which is better than the original paper.
 
 How to run:
 
-pip3 install -r requiremnts.txt
+git clone 
+
+pip3 install -r requirements.txt
 
 python3 show_batch.py --batch_size=2 --file_path="split30_word_data/train/data.txt"
 
