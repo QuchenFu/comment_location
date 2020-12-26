@@ -5,4 +5,4 @@ This git repo built a dataloader for comment location prediction dataset. The tr
 How to run:
 
 pip3 install -r requiremnts.txt
-python3 show_data.py
+python3 show_batch.py
