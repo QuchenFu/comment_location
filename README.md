@@ -2,7 +2,7 @@
 
 This git repo built a pytorch data loader for the comment location prediction dataset. The train.py also contains a vanilla LSTM model that can achieve 0.76 accuracy and 0.26 recall which is better than the original paper.
 
-How to run:
+How to run(wait for the `glove.6B.100d` to be download in line4):
 
 `git clone https://github.com/QuchenFu/comment_location.git`
 
