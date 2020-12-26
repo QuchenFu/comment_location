@@ -1,13 +1,13 @@
 import pandas as pd
 import torch
 import argparse
-# import spacy
-from torchtext.data import Field, TabularDataset, BucketIterator
+from torchtext.data import Field, TabularDataset, BucketIterator, Iterator
 import pyonmttok
 
 def get_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--filepath', type=str, default='split30_word_data/train/data.txt')
+    parser.add_argument('--batch_size', type=int, default=1)
     return parser
 
 def preprocess(path):
@@ -50,9 +50,6 @@ if __name__ == '__main__':
     parser = get_parser()
     args = parser.parse_args()
     device = torch.device("cpu")
-
-    # python -m spacy download en
-    # spacy_en = spacy.load("en")
     preprocess(args.filepath)
     quote = Field(sequential=True, use_vocab=True, tokenize=tokenize, lower=True)
     score = Field(sequential=False, use_vocab=False)
@@ -66,12 +63,15 @@ if __name__ == '__main__':
     quote.build_vocab(train_data, max_size=10000, min_freq=10, vectors="glove.6B.100d")
 
     train_iterator, test_iterator = BucketIterator.splits(
-        (train_data, test_data), batch_size=1, device=device, sort=False
+        (train_data, test_data), batch_size=args.batch_size, device=device, sort=False
     )
 
     for batch_idx, batch in enumerate(train_iterator):
         # Get data to cuda if possible
         data = batch.q.to(device=device)
         targets = batch.s.to(device=device)
+        print(data.dtype)
         print(data)
         print(targets)
+        break
+
