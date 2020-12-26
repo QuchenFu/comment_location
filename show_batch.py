@@ -1,13 +1,16 @@
 import pandas as pd
 import torch
-import spacy
+import argparse
+# import spacy
 from torchtext.data import Field, TabularDataset, BucketIterator
+import pyonmttok
 
-data_path = '/tmp/pycharm_project_62/split30_word_data/train/data.txt'
+def get_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--filepath', type=str, default='split30_word_data/train/data.txt')
+    return parser
 
-
-
-def preproces(path):
+def preprocess(path):
     df = pd.read_csv(path, sep='\t')
     quote = []
     score = []
@@ -32,44 +35,43 @@ def preproces(path):
     data = pd.DataFrame(data, columns=["Quote", "Score"])
     data.to_json("data.json", orient="records", lines=True)
 
-preproces(data_path)
 
-
-device = torch.device("cpu")
-
-# python -m spacy download en
-spacy_en = spacy.load("en")
-
-
-def tokenize(text):
-    return [tok.text for tok in spacy_en.tokenizer(text)]
-
-
-quote = Field(sequential=True, use_vocab=True, tokenize=tokenize, lower=True)
-score = Field(sequential=False, use_vocab=False)
-
-fields = {"Quote": ("q", quote), "Score": ("s", score)}
-
-train_data, test_data = TabularDataset.splits(
-    path="", train="data.json", test="data.json", format="json", fields=fields
-)
-
-quote.build_vocab(train_data, max_size=10000, min_freq=10, vectors="glove.6B.100d")
-
-train_iterator, test_iterator = BucketIterator.splits(
-    (train_data, test_data), batch_size=1, device=device,sort=False
-)
-
-for batch_idx, batch in enumerate(train_iterator):
-    # Get data to cuda if possible
-    data = batch.q.to(device=device)
-    targets = batch.s.to(device=device)
-    print(data)
-    print(targets)
-
-#
-# tokenizer = pyonmttok.Tokenizer("conservative", joiner_annotate=True)
 #
 # def tokenize(text):
-#     tokens, _ = tokenizer.tokenize(text)
-#     return tokens
+#     return [tok.text for tok in spacy_en.tokenizer(text)]
+tokenizer = pyonmttok.Tokenizer("conservative", joiner_annotate=True)
+
+def tokenize(text):
+    tokens, _ = tokenizer.tokenize(text)
+    return tokens
+
+if __name__ == '__main__':
+
+    parser = get_parser()
+    args = parser.parse_args()
+    device = torch.device("cpu")
+
+    # python -m spacy download en
+    # spacy_en = spacy.load("en")
+    preprocess(args.filepath)
+    quote = Field(sequential=True, use_vocab=True, tokenize=tokenize, lower=True)
+    score = Field(sequential=False, use_vocab=False)
+
+    fields = {"Quote": ("q", quote), "Score": ("s", score)}
+
+    train_data, test_data = TabularDataset.splits(
+        path="", train="data.json", test="data.json", format="json", fields=fields
+    )
+
+    quote.build_vocab(train_data, max_size=10000, min_freq=10, vectors="glove.6B.100d")
+
+    train_iterator, test_iterator = BucketIterator.splits(
+        (train_data, test_data), batch_size=1, device=device, sort=False
+    )
+
+    for batch_idx, batch in enumerate(train_iterator):
+        # Get data to cuda if possible
+        data = batch.q.to(device=device)
+        targets = batch.s.to(device=device)
+        print(data)
+        print(targets)
