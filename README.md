@@ -4,7 +4,9 @@ This git repo built a pytorch data loader for the comment location prediction da
 
 How to run:
 
-git clone 
+git clone https://github.com/QuchenFu/comment_location.git
+
+cd comment_location 
 
 pip3 install -r requirements.txt
 
