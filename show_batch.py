@@ -6,7 +6,7 @@ import pyonmttok
 
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--filepath', type=str, default='split30_word_data/train/data.txt')
+    parser.add_argument('--file_path', type=str, default='split30_word_data/train/data.txt')
     parser.add_argument('--batch_size', type=int, default=1)
     return parser
 
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     parser = get_parser()
     args = parser.parse_args()
     device = torch.device("cpu")
-    preprocess(args.filepath)
+    preprocess(args.file_path)
     quote = Field(sequential=True, use_vocab=True, tokenize=tokenize, lower=True)
     score = Field(sequential=False, use_vocab=False)
 

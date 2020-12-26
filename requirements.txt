@@ -3,3 +3,4 @@ torch
 pandas
 pyonmttok
 argparse
+torchtext
